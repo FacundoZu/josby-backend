@@ -29,12 +29,21 @@ export class AuthController {
                 secure: process.env.NODE_ENV == 'production',
                 sameSite: 'strict',
                 maxAge: 30 * 24 * 60 * 60 * 1000
-            }).send('Login correcto')
+            }).send('Inicio de sesión correcto')
 
         } catch (error) {
             console.error("Error al iniciar sesión:", error);
             res.status(500).json({ message: "Error interno del servidor" });
         }
     };
+
+    static logout = async (req, res) => {
+        try {
+            res.clearCookie('access_token').send('Cierre de sesión correcto')
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+            res.status(500).json({ message: "Error interno del servidor" });
+        }
+    }
 
 }

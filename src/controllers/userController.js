@@ -5,7 +5,7 @@ export class UserController {
 
     static registerUser = async (req, res) => {
         try {
-            const { name, surname, email, password, birthdate } = req.body;
+            const { firstname, lastname, email, password, birthdate } = req.body;
 
             const existingUser = await User.findOne({ email });
             if (existingUser) {
@@ -17,12 +17,11 @@ export class UserController {
             const hashedPassword = await hashPassword(password)
 
             const newUser = new User({
-                name,
-                surname,
+                firstname,
+                lastname,
                 email,
                 password: hashedPassword,
                 birthdate,
-                role: "user",
             });
 
             await newUser.save();
@@ -34,4 +33,9 @@ export class UserController {
             res.status(500).json({ error: error.message });
         }
     };
+
+    static user = async (req, res) => {
+        res.json(req.user)
+        return
+    }
 }
