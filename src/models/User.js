@@ -9,7 +9,6 @@ const userSchema = new Schema(
     },
     lastname: {
       type: String,
-      required: true,
       trim: true,
     },
     email: {
@@ -21,12 +20,10 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
       minlength: 6,
     },
     birthdate: {
       type: Date,
-      required: true,
     },
     role: {
       type: String,
@@ -34,6 +31,9 @@ const userSchema = new Schema(
       default: "user",
     },
     image: {
+      type: String,
+    },
+    providerId: {
       type: String,
     },
     title: {

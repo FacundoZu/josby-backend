@@ -2,6 +2,8 @@ import User from "../models/User.js";
 import { comparePassword } from "../utils/auth.js";
 import { generateJWT } from "../utils/jwt.js";
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
 export class AuthController {
 
     static login = async (req, res) => {
@@ -46,4 +48,28 @@ export class AuthController {
         }
     }
 
+    static sessionCallBack = async (req, res) => {
+        try {
+
+            if (!req.user) {
+                const error = new Error('Le usuario no existe')
+                res.status(401).json({ error: error.message })
+                return
+            }
+
+            const user = req.user;
+            const token = generateJWT({ id: user.id });
+
+            res.cookie('access_token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
+                maxAge: 30 * 24 * 60 * 60 * 1000
+            }).redirect(FRONTEND_URL);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Hubo un error' });
+        }
+    }
 }
