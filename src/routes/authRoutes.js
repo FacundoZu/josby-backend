@@ -16,6 +16,11 @@ router.post('/login',
     AuthController.login
 )
 
+router.get("/authUser",
+    authenticateToken,
+    AuthController.authUser
+)
+
 router.post('/logout',
     authenticateToken,
     AuthController.logout

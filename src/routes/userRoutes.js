@@ -14,9 +14,4 @@ router.post("/register", [
     body("birthdate").notEmpty().withMessage("La fecha de nacimiento es obligatoria"),
 ], handleInputErrors, UserController.registerUser);
 
-router.get('/user',
-    authenticateToken,
-    UserController.user
-)
-
 export default router;

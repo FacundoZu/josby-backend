@@ -48,6 +48,35 @@ export class AuthController {
         }
     }
 
+    static authUser = async (req, res) => {
+        try {
+            let userFound = await User.findById(req.user.id);
+            if (!req.user.id) {
+                userFound = await User.findById(req.user.sub);
+            }
+
+            if (!userFound) {
+                return res.status(400).json({
+                    menssage: "Usuario no encontrado",
+                })
+            }
+
+            return res.status(200).json({
+                user: {
+                    id: userFound.id,
+                    email: userFound.email,
+                    firstname: userFound.firstname,
+                    lastname: userFound.lastname,
+                    role: userFound.role,
+                    image: userFound.image,
+                }
+            })
+        } catch (error) {
+            console.error("Error al buscar usuario:", error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
     static sessionCallBack = async (req, res) => {
         try {
 

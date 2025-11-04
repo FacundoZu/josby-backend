@@ -6,7 +6,7 @@ export class UserController {
     static registerUser = async (req, res) => {
         try {
             const { firstname, lastname, email, password, birthdate } = req.body;
-            
+
             const existingUser = await User.findOne({ email });
             if (existingUser) {
                 const error = new Error('Ya existe un usuario con ese email')
@@ -34,8 +34,4 @@ export class UserController {
         }
     };
 
-    static user = async (req, res) => {
-        res.json(req.user)
-        return
-    }
 }
