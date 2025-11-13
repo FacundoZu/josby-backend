@@ -4,6 +4,8 @@ import { upload } from "../middlewares/fileMiddleware";
 
 const router = Router()
 
+//TODO: agregar middlewares y validadores correspondientes
+
 router.get('/', ServiceController.getServices)
 
 router.get('/:id', ServiceController.getService)

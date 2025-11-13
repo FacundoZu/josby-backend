@@ -39,6 +39,8 @@ export class ServiceController {
     }
 
     //Crea el servicio y termina de completar los datos del usuario
+    //TODO: cambiar el rol del usuario a "freelancer"
+    //TODO: testear el controlador
     static createService = async (req, res) => {
         try {
             const userId = req.user.id
