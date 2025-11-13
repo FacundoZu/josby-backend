@@ -1,5 +1,4 @@
-import {Schema} from 'mongoose'
-
+import {Schema, model} from 'mongoose'
 
 const serviceSchema = new Schema({
     usuarioId: {
@@ -39,7 +38,11 @@ const serviceSchema = new Schema({
         required: true,
         default: []
     }
-})
+}, {
+    timestamps: true,
+    versionKey: false
+}
+)
 
 const serviceModel = model("Service", serviceSchema)
 export default serviceModel
