@@ -49,7 +49,8 @@ const userSchema = new Schema(
       trim: true,
     },
     skills: {
-      type: [String],
+      type: [Schema.Types.ObjectId],
+      ref: "Skill",
       default: [],
     },
   },
