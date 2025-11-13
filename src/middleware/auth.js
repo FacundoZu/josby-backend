@@ -30,26 +30,24 @@ export const authenticateToken = async (req, res, next) => {
     }
 }
 
-// export const authorizeRoles = (...allowedRoles) => {
-//     return (req, res, next) => {
-//         if (!req.user) {
-//             res.status(401).json({
-//                 success: false,
-//                 message: 'Usuario no autenticado',
-//                 error: 'Sin autorización',
-//             })
-//             return
-//         }
+export const authorizeRoles = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            res.status(401).json({
+                message: 'Usuario no autenticado',
+                error: 'Sin autorización',
+            })
+            return
+        }
 
-//         if (!allowedRoles.includes(req.user.role)) {
-//             res.status(403).json({
-//                 success: false,
-//                 message: 'No tienes permisos para realizar esta acción',
-//                 error: 'Acceso denegado',
-//             })
-//             return
-//         }
+        if (!allowedRoles.includes(req.user.role)) {
+            res.status(403).json({
+                message: 'No tienes permisos para realizar esta acción',
+                error: 'Acceso denegado',
+            })
+            return
+        }
 
-//         next()
-//     }
-// }
+        next()
+    }
+}
