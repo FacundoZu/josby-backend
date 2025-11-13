@@ -1,6 +1,6 @@
 import {Schema} from 'mongoose'
 
-//TODO: Agregar categorias
+
 const serviceSchema = new Schema({
     usuarioId: {
         type: Schema.Types.ObjectId,
@@ -28,6 +28,11 @@ const serviceSchema = new Schema({
         type: Number,
         required: true,
         min: 1
+    },
+    categories: {
+        type: [Schema.Types.ObjectId],
+        required: true,
+        ref: "Category"
     },
     images: {
         type: [String],
