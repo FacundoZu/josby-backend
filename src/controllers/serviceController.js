@@ -1,11 +1,28 @@
-import Service from "../models/Service"
-import User from "../models/User"
-import { uploadToCloudinary } from "../utils/uploadImage"
+import Service from "../models/Service.js"
+import User from "../models/User.js"
+import Category from "../models/Category.js"
+import { uploadToCloudinary } from "../utils/uploadImage.js"
 
 export class ServiceController {
-    static getServices = async (_req, res) => {
+    static getServices = async (req, res) => {
         try{
-            const services = await Service.find()
+            const { category } = req.query
+            let queryFilter = {}
+
+            if (category && category.trim() !== '') {
+            
+                const existingCategory = await Category.findOne({
+                    name: { $regex: new RegExp(`^${category.trim()}$`, "i") }
+                })
+               
+                if (existingCategory) {
+                    queryFilter = { categories: existingCategory._id };
+                }
+            }
+
+            const services = await Service.find(queryFilter)
+            console.log(services)
+
             res.status(200).json(services)
 
         }catch(error){
@@ -39,12 +56,10 @@ export class ServiceController {
     }
 
     //Crea el servicio y termina de completar los datos del usuario
-    //TODO: cambiar el rol del usuario a "freelancer"
-    //TODO: testear el controlador
     static createService = async (req, res) => {
         try {
             const userId = req.user.id
-            const files = req.images
+            const files = req.files
 
             if (!files || files.length === 0) {
                 res.status(400).json({message: "Debes subir al menos una imagen"})
@@ -60,7 +75,7 @@ export class ServiceController {
 
             const { 
                 title, description, deliveryTime, price, categories, 
-                title: userTitle, description: userDescription, location, skills 
+                userTitle, userDescription, location, skills 
             } = req.body
 
             const serviceData = {
@@ -73,14 +88,15 @@ export class ServiceController {
                 usuarioId: userId
             }
 
-            const newService = new serviceModel(serviceData)
+            const newService = new Service(serviceData)
             const savedService = await newService.save()
 
             const userData = {
                 title: userTitle,
                 description: userDescription,
                 location,
-                skills
+                skills,
+                role: "freelancer"
             }
 
             await User.findByIdAndUpdate(userId, userData, { 
@@ -96,6 +112,63 @@ export class ServiceController {
         }catch(error){
             console.error("Error al crear el servicio", error)
             res.status(500).json({message: "Error al crear el servicio"})
+        }
+    }
+
+    static updateService = async (req, res) => {
+        try{
+            const { id } = req.params
+            const userId = req.user.id
+            const files = req.files
+            const { title, description, deliveryTime, price, categories } = req.body
+
+            const service = await Service.findById(id)
+
+            if (!service) {
+                res.status(404).json({ message: "Servicio no encontrado" })
+                return
+            }
+
+            if (service.usuarioId.toString() !== userId) {
+                res.status(403).json({ message: "No tienes permiso para actualizar este servicio" })
+                return
+            }
+
+            console.log(title, description, deliveryTime, price, categories)
+            
+            const updateData = {
+                title, 
+                description, 
+                deliveryTime, 
+                price, 
+                categories 
+            }
+
+            if (files && files.length > 0) {
+                
+                const uploadPromises = files.map(file => uploadToCloudinary(file.buffer))
+                const uploadResults = await Promise.all(uploadPromises)
+                
+                updateData.images = uploadResults.map(result => result.secure_url)
+            }
+
+            const updatedService = await Service.findByIdAndUpdate(
+                id,
+                updateData, 
+                { 
+                    new: true, 
+                    runValidators: true
+                }
+            )
+
+            res.status(200).json({ 
+                message: "Servicio actualizado correctamente", 
+                data: updatedService 
+            })
+
+        }catch(error){
+            console.error("Error al actualizar el servicio", error)
+            res.status(500).json({message: "Error al actualizar el servicio"})
         }
     }
 

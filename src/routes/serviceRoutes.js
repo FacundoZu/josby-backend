@@ -1,24 +1,37 @@
 import Router from 'express'
-import { ServiceController } from '../controllers/serviceController'
-import { upload } from "../middlewares/fileMiddleware";
-
+import { ServiceController } from '../controllers/serviceController.js'
+import { upload } from '../middleware/fileMiddleware.js'
+import { authenticateToken, authorizeRoles } from "../middleware/auth.js"
+import { createServiceValidator, updateServiceValidator } from '../validators/serviceValidator.js'
+import { handleInputErrors } from '../middleware/validation.js'
 const router = Router()
-
-//TODO: agregar middlewares y validadores correspondientes
 
 router.get('/', ServiceController.getServices)
 
 router.get('/:id', ServiceController.getService)
 
-router.post('/', 
+router.post('/',
     authenticateToken,
-    authorizeRoles('user'),
-    upload.array("image", 5), 
+    authorizeRoles('freelancer', 'user'),
+    upload.array("images", 5), 
+    createServiceValidator,
+    handleInputErrors,
     ServiceController.createService
 )
 
-router.put('/:id')
+router.put('/:id', 
+    authenticateToken,
+    authorizeRoles('freelancer'),
+    upload.array("images", 5), 
+    updateServiceValidator,
+    handleInputErrors,
+    ServiceController.updateService
+)
 
-router.delete('/:id', ServiceController.deleteService)
+router.delete('/:id', 
+    authenticateToken,
+    authorizeRoles('freelancer'),
+    ServiceController.deleteService
+)
 
 export default router
