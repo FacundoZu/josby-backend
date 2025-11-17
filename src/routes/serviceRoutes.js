@@ -8,6 +8,8 @@ const router = Router()
 
 router.get('/', ServiceController.getServices)
 
+router.get("/search", ServiceController.getServiceBySearch)
+
 router.get('/:id', ServiceController.getService)
 
 router.post('/',

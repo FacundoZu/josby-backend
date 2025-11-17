@@ -60,6 +60,40 @@ export class ServiceController {
         }
     }
 
+    static getServiceBySearch = async (req, res) => {
+        try{
+            const { search } = req.query
+
+            
+            const regex = new RegExp(search, 'i')
+
+            const matchedUsers = await User.find({
+                $or: [
+                    { firstname: regex },
+                    { lastname: regex }
+                ]
+            }).select("_id")
+
+            const matchedUserIds = matchedUsers.map(u => u._id);
+
+            const services = await Service.find({
+                $or: [
+                    { title: regex },
+                    { usuarioId: { $in: matchedUserIds } }
+                ]
+            })
+            .populate("usuarioId", "firstname lastname location")
+            .populate("categories", "name")
+            .lean()
+
+            res.status(200).json(services)
+            
+        }catch(error){
+            console.error("Error al obtener los servicios", error)
+            res.status(500).json({message: "Error al obtener los servicios"})
+        }
+    }
+
     //Crea el servicio y termina de completar los datos del usuario
     static createService = async (req, res) => {
         try {
