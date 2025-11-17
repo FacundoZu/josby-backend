@@ -21,7 +21,9 @@ export class ServiceController {
             }
 
             const services = await Service.find(queryFilter)
-            console.log(services)
+                .populate("usuarioId", "firstname lastname location")
+                .populate("categories", "name")
+                .lean()
 
             res.status(200).json(services)
 
@@ -41,6 +43,9 @@ export class ServiceController {
             }
 
             const service = await Service.findById(id)
+                .populate("usuarioId", "id firstname lastname location description title")
+                .populate("categories", "name")
+                .lean()
 
             if(!service){
                 res.status(404).json({message: "No se enontró el servicio"})
