@@ -7,6 +7,10 @@ const skillSchema = new Schema(
       required: true,
       trim: true,
       unique: true
+    },
+    color: {
+      type: String,
+      default: "#BDBDBD"
     }
   },
   {

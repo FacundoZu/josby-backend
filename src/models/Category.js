@@ -7,6 +7,9 @@ const categorySchema = new Schema(
       required: true,
       trim: true,
       unique: true
+    },
+    logo: {
+      type: String
     }
   },
   {
