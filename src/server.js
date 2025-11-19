@@ -11,6 +11,7 @@ import userRoutes from './routes/userRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js';
 import skillRoutes from './routes/skillRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js'
+import conversationRoutes from './routes/conversationRoutes.js'
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/user', userRoutes)
 app.use('/api/category', categoryRoutes)
 app.use('/api/skill', skillRoutes)
 app.use('/api/service', serviceRoutes)
+app.use('/api/chat', conversationRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
