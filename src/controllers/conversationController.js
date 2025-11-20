@@ -65,7 +65,10 @@ export class ConversationController {
         const { freelancerId, clientId, message } = req.body
         const senderId = req.user.id
 
+        const io = req.app.get("socketio")
+
         let conversation = await Conversation.findOne({ freelancerId, clientId })
+        let newMessage = null
 
         if (conversation) {
             // Si existe, agregamos el mensaje
@@ -73,6 +76,8 @@ export class ConversationController {
                 message,
                 from: senderId
             })
+
+            newMessage = newMsg
             await conversation.save()
         } else {
             // Si no existe, creamos una conversación
@@ -84,7 +89,24 @@ export class ConversationController {
                     from: senderId
                 }]
             })
+
+            newMessage = conversation.messages[0];
         }
+
+        const receiverID = conversation.freelancerId.toString() === senderId
+            ? conversation.clientId.toString()
+            : conversation.freelancerId.toString()
+
+        // Emite al chat (para verlo si el usuario está dentro)
+        io.to(conversation._id.toString()).emit("receive_message", newMessageData)
+
+        //Emite la notificación (cuando el usuario está en otro lado de la pág)
+        io.to(receiverID).emit("notification", {
+            conversationId: conversation._id,
+            from: senderId,
+            message,
+            updatedAt: new Date()
+        })
 
         res.status(200).json(conversation)
     } catch (error) {
