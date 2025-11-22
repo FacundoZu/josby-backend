@@ -1,23 +1,29 @@
+import orderModel from "../models/order.js"
 
 export class OrderController {
     static async createOrder(req, res) {
       try{
-        const { serviceId, fechaEntrega } = req.body
+        const { serviceId } = req.body
         const clienteId = req.user._id
 
-        const service = await serviceModel.findById(service)
+        const service = await orderModel.findById(serviceId)
         if(!serviceId){
           return res.status(404).json({message: "Servicio no encontrado"})
         }
         const freelancerId = service.userId
+        const diaEntrega = service.deliveryTime
+        const fechaCalculada = new Date()
+        fechaCalculada.setDate(fechaCalculada.getDate() + diaEntrega)
         const newOrder = await orderModel({
           clienteId,
           freelancerId,
           serviceId,
-          fechaEntrega,
+          fechaEntrega: fechaCalculada,
           precio: service.precio,
           estado: 'pendiente',
+          entregables: []
         })
+        await newOrder.save()
         res.status(201).json({message: "Pedido creado exitosamente", order: newOrder
         })
       }catch(error){
