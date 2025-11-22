@@ -19,7 +19,7 @@ const serviceSchema = new Schema({
         minLength: 10
     },
     features: { //estos datos van el el pricing card. Son los servicios resumidos
-        type: String,
+        type: [String],
         trim: true,
         required: true
     },
