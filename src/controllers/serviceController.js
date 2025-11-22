@@ -120,7 +120,7 @@ export class ServiceController {
             const serviceData = {
                 title,
                 description,
-                features,
+                features: features.split("\n"),
                 deliveryTime,
                 price,
                 categories,
