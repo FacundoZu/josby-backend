@@ -136,7 +136,7 @@ export class ConversationController {
       // Emite al chat (para verlo si el usuario está dentro)
       io.to(conversation._id.toString()).emit(
         "receive_message",
-        newMessageData
+        newMessage
       )
 
       //Emite la notificación (cuando el usuario está en otro lado de la pág)
