@@ -113,13 +113,14 @@ export class ServiceController {
             const imageUrls = uploadResults.map(result => result.secure_url)
 
             const { 
-                title, description, deliveryTime, price, categories, 
+                title, description, features, deliveryTime, price, categories, 
                 userTitle, userDescription, location, skills 
             } = req.body
 
             const serviceData = {
                 title,
                 description,
+                features: features.split("\n"),
                 deliveryTime,
                 price,
                 categories,
@@ -159,7 +160,7 @@ export class ServiceController {
             const { id } = req.params
             const userId = req.user.id
             const files = req.files
-            const { title, description, deliveryTime, price, categories } = req.body
+            const { title, description, features, deliveryTime, price, categories } = req.body
 
             const service = await Service.findById(id)
 
@@ -172,12 +173,11 @@ export class ServiceController {
                 res.status(403).json({ message: "No tienes permiso para actualizar este servicio" })
                 return
             }
-
-            console.log(title, description, deliveryTime, price, categories)
             
             const updateData = {
                 title, 
-                description, 
+                description,
+                features, 
                 deliveryTime, 
                 price, 
                 categories 

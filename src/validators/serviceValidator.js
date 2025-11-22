@@ -8,6 +8,10 @@ export const createServiceValidator = [
     body("description")
         .notEmpty().withMessage("La descripción es obligatoria.")
         .isLength({ min: 10 }).withMessage("La descripción debe contener al menos 10 caracteres."),
+    
+    body("features")
+        .notEmpty().withMessage("Las características del servicio son obligatorias.")
+        .isLength({ min: 10 }).withMessage("Las características deben contener al menos 10 caracteres."),
 
     body("deliveryTime")
         .notEmpty().withMessage("El tiempo de entrega es obligatorio.")
@@ -57,6 +61,10 @@ export const updateServiceValidator = [
     body("description")
         .notEmpty().withMessage("La descripción es obligatoria.")
         .isLength({ min: 10 }).withMessage("La descripción debe contener al menos 10 caracteres."),
+
+    body("features")
+        .notEmpty().withMessage("Las características del servicio son obligatorias.")
+        .isLength({ min: 10 }).withMessage("Las características deben contener al menos 10 caracteres."),
 
     body("deliveryTime")
         .notEmpty().withMessage("El tiempo de entrega es obligatorio.")

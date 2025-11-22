@@ -18,6 +18,11 @@ const serviceSchema = new Schema({
         trim: true,
         minLength: 10
     },
+    features: { //estos datos van el el pricing card. Son los servicios resumidos
+        type: [String],
+        trim: true,
+        required: true
+    },
     deliveryTime: { // se toma los numeros como cantidad de días
         type: Number,
         required: true,
