@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/:id", OrderController.getOrderById);
 router.get("/", OrderController.getOrderByUser);
-router.post();
+router.post("/", OrderController.createOrder);
 
 
 

@@ -1,5 +1,30 @@
 
 export class OrderController {
+    static async createOrder(req, res) {
+      try{
+        const { serviceId, fechaEntrega } = req.body
+        const clienteId = req.user._id
+
+        const service = await serviceModel.findById(service)
+        if(!serviceId){
+          return res.status(404).json({message: "Servicio no encontrado"})
+        }
+        const freelancerId = service.userId
+        const newOrder = await orderModel({
+          clienteId,
+          freelancerId,
+          serviceId,
+          fechaEntrega,
+          precio: service.precio,
+          estado: 'pendiente',
+        })
+        res.status(201).json({message: "Pedido creado exitosamente", order: newOrder
+        })
+      }catch(error){
+        console.error(error)
+        res.status(500).json({message: "Error al crear el pedido", error: error.message})
+      }
+    }
     static async getOrderById(req, res) {
       try{
         const { id } = req.params
