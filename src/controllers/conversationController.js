@@ -102,6 +102,7 @@ export class ConversationController {
 
       let conversation = await Conversation.findOne({ freelancerId, clientId })
       let newMessage = null
+      let isNewConversation = false
 
       if (conversation) {
         // Si existe, agregamos el mensaje
@@ -114,6 +115,7 @@ export class ConversationController {
         await conversation.save()
       } else {
         // Si no existe, creamos una conversación
+        isNewConversation = true
         conversation = await Conversation.create({
           freelancerId,
           clientId,
@@ -142,6 +144,14 @@ export class ConversationController {
         }
       )
 
+      io.to(receiverID.toString()).emit(
+        "chat_list_update",
+        {
+          newMessage,
+          conversationId: conversation._id
+        }
+      )
+
       //Emite la notificación (cuando el usuario está en otro lado de la pág)
       io.to(receiverID).emit("notification", {
         conversationId: conversation._id,
@@ -150,7 +160,13 @@ export class ConversationController {
         updatedAt: new Date(),
       })
 
-      res.status(200).json(newMessage)
+      if (isNewConversation) {
+        return res.status(200).json(conversation)
+
+      } else {
+        return res.status(200).json(newMessage)
+      }
+
     } catch (error) {
       console.error("Error al enviar mensaje", error)
       res.status(500).json(error)
