@@ -41,7 +41,7 @@ export class ConversationController {
     try {
       const { id } = req.params
 
-      const conversation = await Conversation.findById(id)
+      const conversation = await Conversation.findById(id).populate("clientId", "firstname lastname")
 
       if (!conversation) {
         res.status(404).json({ message: "No se encontró la conversación" })
@@ -110,7 +110,7 @@ export class ConversationController {
           from: senderId,
         })
 
-        newMessage = newMsg
+        newMessage = conversation.messages[conversation.messages.length - 1]
         await conversation.save()
       } else {
         // Si no existe, creamos una conversación
@@ -136,7 +136,10 @@ export class ConversationController {
       // Emite al chat (para verlo si el usuario está dentro)
       io.to(conversation._id.toString()).emit(
         "receive_message",
-        newMessage
+        {
+          newMessage,
+          conversationId: conversation._id
+        }
       )
 
       //Emite la notificación (cuando el usuario está en otro lado de la pág)
@@ -147,7 +150,7 @@ export class ConversationController {
         updatedAt: new Date(),
       })
 
-      res.status(200).json(conversation)
+      res.status(200).json(newMessage)
     } catch (error) {
       console.error("Error al enviar mensaje", error)
       res.status(500).json(error)
