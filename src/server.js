@@ -13,6 +13,7 @@ import userRoutes from './routes/userRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js';
 import skillRoutes from './routes/skillRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js'
+import freelancerRoutes from './routes/freelancerRoutes.js'
 import conversationRoutes from './routes/conversationRoutes.js'
 import orderRoutes from './routes/orderRoutes.js';
 
@@ -23,11 +24,11 @@ const httpServer = createServer(app)
 connectDB();
 
 const io = new Server(httpServer, {
-    cors: {
-        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-        methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        credentials: true,
-    }
+  cors: {
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  }
 })
 
 app.set('socketio', io);
@@ -63,6 +64,7 @@ app.use('/api/user', userRoutes)
 app.use('/api/category', categoryRoutes)
 app.use('/api/skill', skillRoutes)
 app.use('/api/service', serviceRoutes)
+app.use("/api/freelancer", freelancerRoutes)
 app.use('/api/chat', conversationRoutes)
 app.use('/api/order', orderRoutes)
 

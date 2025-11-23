@@ -81,7 +81,7 @@ export class AuthController {
         try {
 
             if (!req.user) {
-                const error = new Error('Le usuario no existe')
+                const error = new Error('El usuario no existe')
                 res.status(401).json({ error: error.message })
                 return
             }
