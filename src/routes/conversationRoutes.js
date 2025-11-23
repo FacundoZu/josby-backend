@@ -11,5 +11,6 @@ router.get("/search", authenticateToken, authorizeRoles('freelancer'), Conversat
 router.get("/:id", ConversationController.getConversationById)
 
 router.post("/", authenticateToken, handleInputErrors, ConversationController.sendMessage)
+router.put("/read/:id", authenticateToken, ConversationController.markAsRead)
 
 export default router

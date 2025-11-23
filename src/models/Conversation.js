@@ -30,7 +30,15 @@ const conversationSchema = new Schema({
         ref: "User",
         required: true
     },
-    messages: [messageSchema]
+    messages: [messageSchema],
+    freelancerUnread: {
+      type: Number,
+      default: 0, 
+    },
+    clientUnread: {
+      type: Number,
+      default: 0, 
+    }
 },{
     timestamps: true,
     versionKey: false

@@ -30,7 +30,20 @@ export class ConversationController {
         .populate("freelancerId", "firstname lastname image")
         .sort({ updatedAt: -1 })
 
-      res.json(conversations)
+      const formattedConversations = conversations.map(conv => {
+         const convObj = conv.toObject()
+         
+         if (conv.freelancerId._id.toString() === userId) {
+            convObj.unread = conv.freelancerUnread || 0
+         } 
+         else {
+            convObj.unread = conv.clientUnread || 0
+         }
+         
+         return convObj
+      })
+
+      res.json(formattedConversations)
     } catch (error) {
       console.error("Error al obtener la conversación", error)
       res.status(500).json(error)
@@ -111,11 +124,19 @@ export class ConversationController {
           from: senderId,
         })
 
+        if (senderId === conversation.freelancerId.toString()) {
+            conversation.clientUnread = (conversation.clientUnread || 0) + 1
+        } else {
+            conversation.freelancerUnread = (conversation.freelancerUnread || 0) + 1
+        }
+
         newMessage = conversation.messages[conversation.messages.length - 1]
         await conversation.save()
       } else {
         // Si no existe, creamos una conversación
         isNewConversation = true
+        const isSenderFreelancer = senderId === freelancerId
+
         conversation = await Conversation.create({
           freelancerId,
           clientId,
@@ -123,6 +144,8 @@ export class ConversationController {
             {
               message,
               from: senderId,
+              freelancerUnread: isSenderFreelancer ? 0 : 1,
+              clientUnread: isSenderFreelancer ? 1 : 0
             },
           ],
         })
@@ -161,14 +184,42 @@ export class ConversationController {
       })
 
       if (isNewConversation) {
-        return res.status(200).json(conversation)
+        res.status(200).json(conversation)
+        return
 
       } else {
-        return res.status(200).json(newMessage)
+        res.status(200).json(newMessage)
+        return
       }
 
     } catch (error) {
       console.error("Error al enviar mensaje", error)
+      res.status(500).json(error)
+    }
+  }
+
+  static async markAsRead(req, res){
+    try{
+      const { id } = req.params
+      const userId = req.user.id
+
+      const conversation = await Conversation.findById(id)
+
+      if (!conversation){
+        res.status(404).json({ msg: "Conversación no encontrada" })
+        return
+      } 
+
+      if (userId === conversation.freelancerId.toString()) {
+          conversation.freelancerUnread = 0
+      } else if (userId === conversation.clientId.toString()) {
+          conversation.clientUnread = 0
+      }
+
+      await conversation.save()
+      res.status(200).json({ msg: "Marcado como leído" })
+    }catch(error){
+      console.error("Error al marcar como leido:", error)
       res.status(500).json(error)
     }
   }
