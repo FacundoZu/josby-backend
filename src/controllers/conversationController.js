@@ -140,12 +140,12 @@ export class ConversationController {
         conversation = await Conversation.create({
           freelancerId,
           clientId,
+          freelancerUnread: isSenderFreelancer ? 0 : 1,
+          clientUnread: isSenderFreelancer ? 1 : 0,
           messages: [
             {
               message,
-              from: senderId,
-              freelancerUnread: isSenderFreelancer ? 0 : 1,
-              clientUnread: isSenderFreelancer ? 1 : 0
+              from: senderId
             },
           ],
         })
