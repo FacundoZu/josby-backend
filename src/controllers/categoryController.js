@@ -3,7 +3,7 @@ import Category from "../models/Category.js";
 export class CategoryController {
     static getCategories = async (req, res) => {
         try {
-            const categories = await Category.find().select("name");
+            const categories = await Category.find().select("name logo");
             res.status(200).json(categories);
         } catch (error) {
             console.error("Error al obtener categorías:", error);

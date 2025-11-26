@@ -5,40 +5,76 @@ import { uploadToCloudinary } from "../utils/uploadImage.js"
 
 export class ServiceController {
     static getServices = async (req, res) => {
-        try{
-            const { category } = req.query
+        try {
+            const { category, search, page = 1, limit = 6 } = req.query
             let queryFilter = {}
 
             if (category && category.trim() !== '') {
-            
                 const existingCategory = await Category.findOne({
                     name: { $regex: new RegExp(`^${category.trim()}$`, "i") }
                 })
-               
+
                 if (existingCategory) {
-                    queryFilter = { categories: existingCategory._id };
+                    queryFilter.categories = existingCategory._id;
                 }
             }
+
+            if (search && search.trim() !== '') {
+                const regex = new RegExp(search.trim(), 'i')
+
+                const matchedUsers = await User.find({
+                    $or: [
+                        { firstname: regex },
+                        { lastname: regex }
+                    ]
+                }).select("_id")
+
+                const matchedUserIds = matchedUsers.map(u => u._id);
+
+                queryFilter.$or = [
+                    { title: regex },
+                    { usuarioId: { $in: matchedUserIds } }
+                ]
+            }
+
+            const pageNum = parseInt(page)
+            const limitNum = parseInt(limit)
+            const skip = (pageNum - 1) * limitNum
+
+            const totalServices = await Service.countDocuments(queryFilter)
+            const totalPages = Math.ceil(totalServices / limitNum)
 
             const services = await Service.find(queryFilter)
                 .populate("usuarioId", "firstname lastname location")
                 .populate("categories", "name")
+                .skip(skip)
+                .limit(limitNum)
+                .sort({ createdAt: -1 })
                 .lean()
 
-            res.status(200).json(services)
+            res.status(200).json({
+                services,
+                pagination: {
+                    page: pageNum,
+                    limit: limitNum,
+                    total: totalServices,
+                    totalPages,
+                    hasMore: pageNum < totalPages
+                }
+            })
 
-        }catch(error){
+        } catch (error) {
             console.error("Error al obtener los servicios", error)
-            res.status(500).json({message: "Error al obtener los servicios"})
+            res.status(500).json({ message: "Error al obtener los servicios" })
         }
     }
 
     static getService = async (req, res) => {
-        try{
+        try {
             const { id } = req.params
 
-            if(!id){
-                res.status(400).json({message: "El ID del servicio es obligatorio"})
+            if (!id) {
+                res.status(400).json({ message: "El ID del servicio es obligatorio" })
                 return
             }
 
@@ -47,24 +83,24 @@ export class ServiceController {
                 .populate("categories", "name")
                 .lean()
 
-            if(!service){
-                res.status(404).json({message: "No se enontró el servicio"})
+            if (!service) {
+                res.status(404).json({ message: "No se enontró el servicio" })
                 return
             }
 
             res.status(200).json(service)
 
-        }catch(error){
+        } catch (error) {
             console.error("Error al obtener el servicio", error)
-            res.status(500).json({message: "Error al obtener el servicio"})
+            res.status(500).json({ message: "Error al obtener el servicio" })
         }
     }
 
     static getServiceBySearch = async (req, res) => {
-        try{
+        try {
             const { search } = req.query
 
-            
+
             const regex = new RegExp(search, 'i')
 
             const matchedUsers = await User.find({
@@ -82,15 +118,15 @@ export class ServiceController {
                     { usuarioId: { $in: matchedUserIds } }
                 ]
             })
-            .populate("usuarioId", "firstname lastname location")
-            .populate("categories", "name")
-            .lean()
+                .populate("usuarioId", "firstname lastname location")
+                .populate("categories", "name")
+                .lean()
 
             res.status(200).json(services)
-            
-        }catch(error){
+
+        } catch (error) {
             console.error("Error al obtener los servicios", error)
-            res.status(500).json({message: "Error al obtener los servicios"})
+            res.status(500).json({ message: "Error al obtener los servicios" })
         }
     }
 
@@ -101,7 +137,7 @@ export class ServiceController {
             const files = req.files
 
             if (!files || files.length === 0) {
-                res.status(400).json({message: "Debes subir al menos una imagen"})
+                res.status(400).json({ message: "Debes subir al menos una imagen" })
                 return
             }
 
@@ -112,9 +148,9 @@ export class ServiceController {
 
             const imageUrls = uploadResults.map(result => result.secure_url)
 
-            const { 
-                title, description, features, deliveryTime, price, categories, 
-                userTitle, userDescription, location, skills 
+            const {
+                title, description, features, deliveryTime, price, categories,
+                userTitle, userDescription, location, skills
             } = req.body
 
             const serviceData = {
@@ -139,24 +175,24 @@ export class ServiceController {
                 role: "freelancer"
             }
 
-            await User.findByIdAndUpdate(userId, userData, { 
-                new: true, 
+            await User.findByIdAndUpdate(userId, userData, {
+                new: true,
             })
 
 
-            res.status(201).json({ 
-                message: "Servicio creado correctamente", 
-                data: savedService 
+            res.status(201).json({
+                message: "Servicio creado correctamente",
+                data: savedService
             })
-            
-        }catch(error){
+
+        } catch (error) {
             console.error("Error al crear el servicio", error)
-            res.status(500).json({message: "Error al crear el servicio"})
+            res.status(500).json({ message: "Error al crear el servicio" })
         }
     }
 
     static updateService = async (req, res) => {
-        try{
+        try {
             const { id } = req.params
             const userId = req.user.id
             const files = req.files
@@ -173,65 +209,65 @@ export class ServiceController {
                 res.status(403).json({ message: "No tienes permiso para actualizar este servicio" })
                 return
             }
-            
+
             const updateData = {
-                title, 
+                title,
                 description,
-                features, 
-                deliveryTime, 
-                price, 
-                categories 
+                features,
+                deliveryTime,
+                price,
+                categories
             }
 
             if (files && files.length > 0) {
-                
+
                 const uploadPromises = files.map(file => uploadToCloudinary(file.buffer))
                 const uploadResults = await Promise.all(uploadPromises)
-                
+
                 updateData.images = uploadResults.map(result => result.secure_url)
             }
 
             const updatedService = await Service.findByIdAndUpdate(
                 id,
-                updateData, 
-                { 
-                    new: true, 
+                updateData,
+                {
+                    new: true,
                     runValidators: true
                 }
             )
 
-            res.status(200).json({ 
-                message: "Servicio actualizado correctamente", 
-                data: updatedService 
+            res.status(200).json({
+                message: "Servicio actualizado correctamente",
+                data: updatedService
             })
 
-        }catch(error){
+        } catch (error) {
             console.error("Error al actualizar el servicio", error)
-            res.status(500).json({message: "Error al actualizar el servicio"})
+            res.status(500).json({ message: "Error al actualizar el servicio" })
         }
     }
 
     static deleteService = async (req, res) => {
-        try{
+        try {
             const { id } = req.params
 
-            if(!id){
-                res.status(400).json({message: "El ID del servicio es obligatorio"})
+            if (!id) {
+                res.status(400).json({ message: "El ID del servicio es obligatorio" })
                 return
             }
 
             const service = await Service.findByIdAndDelete(id)
 
-            if(!service){
-                res.status(404).json({message: "No se encontró el servicio"})
+            if (!service) {
+                res.status(404).json({ message: "No se encontró el servicio" })
                 return
             }
 
-            res.status(201).json({message: "Servicio eliminado correctamente"})
+            res.status(201).json({ message: "Servicio eliminado correctamente" })
 
-        }catch(error){
+        } catch (error) {
             console.error("Error al eliminar el servicio", error)
-            res.status(500).json({message: "Error al eliminar el servicio"})
+            res.status(500).json({ message: "Error al eliminar el servicio" })
         }
     }
 }
