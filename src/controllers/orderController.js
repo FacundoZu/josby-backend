@@ -1,5 +1,7 @@
 import orderModel from "../models/order.js"
 import serviceModel from "../models/Service.js"
+import User from "../models/User.js"
+import { sendMail } from "../services/sendEmail.js"
 
 export class OrderController {
     static async createOrder(req, res) {
@@ -25,7 +27,26 @@ export class OrderController {
           estado: 'pendiente',
           entregables: []
         })
-        await newOrder.save()
+
+        const nuevoPedido = await newOrder.save()
+
+        if(nuevoPedido){
+          const freelancer = await User.findById(freelancerId)
+  
+          // se envia correo al freelancer
+          await sendMail({
+            to: freelancer.email,
+            subject: "Has recibido un nuevo pedido 🎉",
+            html: `
+              <h2>¡Hola ${freelancer.nombre}!</h2>
+              <p>Te han contratado el servicio: <strong>${service.title}</strong></p>
+              <p>Precio: <strong>$${service.price}</strong></p>
+              <p>Entrega estimada: <strong>${fechaCalculada.toLocaleDateString()}</strong></p>
+              <p>Revisa tu panel para ver más detalles.</p>
+            `,
+          })
+        }
+
         res.status(201).json({message: "Pedido creado exitosamente", order: newOrder
         })
       }catch(error){
