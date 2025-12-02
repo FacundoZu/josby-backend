@@ -38,7 +38,7 @@ export class OrderController {
             to: freelancer.email,
             subject: "Has recibido un nuevo pedido 🎉",
             html: `
-              <h2>¡Hola ${freelancer.nombre}!</h2>
+              <h2>¡Hola ${freelancer.firstname}!</h2>
               <p>Te han contratado el servicio: <strong>${service.title}</strong></p>
               <p>Precio: <strong>$${service.price}</strong></p>
               <p>Entrega estimada: <strong>${fechaCalculada.toLocaleDateString()}</strong></p>
