@@ -35,11 +35,13 @@ const orderSchema = new Schema({
         enum: ['pendiente', 'proceso', 'finalizado', 'revision'],
         default: 'pendiente'
     },
-    entregables: {
-        type: [String],
-        required: true,
-        default: []
-    }
+    entregables: [
+        {
+            nombre: { type: String, required: true },
+            url: { type: String, required: true },
+            uploadedAt: { type: Date, default: Date.now }
+        }
+    ]
 }, {
     timestamps: true,
     versionKey: false

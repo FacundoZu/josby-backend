@@ -187,6 +187,28 @@ export class OrderController {
     }
   }
 
+  static async acceptDelivery(req, res){
+    try{
+      const { id } = req.params
+
+      const acceptedOrder = await orderModel.findByIdAndUpdate(id, {estado: "finalizado"}, { new: true })
+
+      if(!acceptedOrder){
+        return res.status(404).json({ message: "No se encontró pedido con ese id"})
+      }
+
+      res.status(200).json({ message: "Entrega aceptada", order: acceptedOrder})
+    }catch(error){
+      console.error(error)
+      res
+        .status(500)
+        .json({
+          message: "Error al aceptar la entrega",
+          error: error.message,
+        });
+    }
+  }
+
   static async finalizeOrder(req, res){
     try{
       const { id } = req.params
@@ -206,6 +228,35 @@ export class OrderController {
           message: "Error al finalizar el pedido",
           error: error.message,
         });
+    }
+  }
+
+  static async  addDeliverable(req, res) {
+    try {
+      const { nombre, url } = req.body
+      const { id } = req.params
+
+      const order = await orderModel.findById(id)
+      if (!order){
+        return res.status(404).json({ message: "No se encontró pedido con ese id" })
+      } 
+
+      const newDeliverable = {
+        nombre,
+        url,
+        uploadedAt: new Date()
+      }
+
+      order.entregables.push(newDeliverable)
+
+      order.estado = "revision"
+
+      await order.save()
+      res.json(order)
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Error al agregar entregable" });
     }
   }
 }

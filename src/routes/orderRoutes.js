@@ -9,6 +9,8 @@ router.get("/:id",authenticateToken, OrderController.getOrderById);
 router.post("/", authenticateToken, authorizeRoles("user"), OrderController.createOrder);
 router.put("/accept/:id", authenticateToken, authorizeRoles("freelancer"), OrderController.acceptOrder)
 router.put("/finalize/:id", authenticateToken, authorizeRoles("freelancer"), OrderController.finalizeOrder)
+router.post("/submit/:id", authenticateToken, authorizeRoles("freelancer"), OrderController.addDeliverable)
+router.put("/acceptDelivery/:id", authenticateToken, authorizeRoles("user"), OrderController.acceptDelivery)
 
 
 
