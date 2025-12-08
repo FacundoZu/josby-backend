@@ -32,7 +32,7 @@ const orderSchema = new Schema({
     estado: {
         type: String,
         required: true,
-        enum: ['pendiente', 'en progreso', 'completado', 'cancelado'],
+        enum: ['pendiente', 'proceso', 'finalizado', 'revision'],
         default: 'pendiente'
     },
     entregables: {
