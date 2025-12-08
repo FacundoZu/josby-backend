@@ -259,4 +259,48 @@ export class OrderController {
       res.status(500).json({ error: "Error al agregar entregable" });
     }
   }
+
+  static async requestChanges(req, res){
+    try{
+      const { id } = req.params
+      const { cambios } = req.body;
+
+      if (!cambios || !cambios.trim()) {
+        return res.status(400).json({ error: "Debes incluir los cambios solicitados" });
+      }
+
+      const order = await orderModel.findById(id)
+      .populate("freelancerId")
+      .populate("clienteId")
+
+      if (!order) {
+        return res.status(404).json({ error: "Pedido no encontrado" });
+      }
+
+      const emailDestino = order.freelancerId.email;
+
+      await sendMail({
+        to: emailDestino,
+        subject: `📦 Solicitar cambios - Pedido ${order._id}`,
+        html: `
+          <h2>El cliente solicitó cambios</h2>
+
+          <p><strong>Pedido:</strong> ${order._id}</p>
+          <p><strong>Cliente:</strong> ${order.clienteId.firstname} ${order.clienteId.lastname}</p>
+
+          <h3>Descripción de los cambios:</h3>
+          <p>${cambios}</p>
+
+          <br />
+          <p>Por favor realiza las modificaciones correspondientes.</p>
+        `
+      });
+
+      return res.json({ message: "Solicitud de cambios enviada correctamente" });
+
+    }catch(error){
+      console.error(error);
+      res.status(500).json({ error: "Error al solicitar cambios" });
+    }
+  }
 }

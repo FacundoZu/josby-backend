@@ -11,6 +11,7 @@ router.put("/accept/:id", authenticateToken, authorizeRoles("freelancer"), Order
 router.put("/finalize/:id", authenticateToken, authorizeRoles("freelancer"), OrderController.finalizeOrder)
 router.post("/submit/:id", authenticateToken, authorizeRoles("freelancer"), OrderController.addDeliverable)
 router.put("/acceptDelivery/:id", authenticateToken, authorizeRoles("user"), OrderController.acceptDelivery)
+router.post("/requestChanges/:id", authenticateToken, authorizeRoles("user"), OrderController.requestChanges)
 
 
 
