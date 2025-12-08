@@ -164,4 +164,48 @@ export class OrderController {
         });
     }
   }
+
+  static async acceptOrder(req, res){
+    try{
+      const { id } = req.params
+
+      const acceptedOrder = await orderModel.findByIdAndUpdate(id, {estado: "proceso"}, { new: true })
+
+      if(!acceptedOrder){
+        return res.status(404).json({ message: "No se encontró pedido con ese id"})
+      }
+
+      res.status(200).json({ message: "Pedido aceptado", order: acceptedOrder})
+    }catch(error){
+      console.error(error)
+      res
+        .status(500)
+        .json({
+          message: "Error al aceptar el pedido",
+          error: error.message,
+        });
+    }
+  }
+
+  static async finalizeOrder(req, res){
+    try{
+      const { id } = req.params
+
+      const acceptedOrder = await orderModel.findByIdAndUpdate(id, {estado: "finalizado"}, { new: true })
+
+      if(!acceptedOrder){
+        return res.status(404).json({ message: "No se encontró pedido con ese id"})
+      }
+
+      res.status(200).json({ message: "Pedido finalizado", order: acceptedOrder})
+    }catch(error){
+      console.error(error)
+      res
+        .status(500)
+        .json({
+          message: "Error al finalizar el pedido",
+          error: error.message,
+        });
+    }
+  }
 }
