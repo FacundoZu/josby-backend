@@ -35,6 +35,10 @@ const orderSchema = new Schema({
         enum: ['pendiente', 'proceso', 'finalizado', 'revision'],
         default: 'pendiente'
     },
+    lastUpdateInfo: {
+        type: String,
+        default: "Sin actualizaciones aún"
+    },
     entregables: {
         type: [String],
         required: true,

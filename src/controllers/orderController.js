@@ -106,9 +106,9 @@ export class OrderController {
 
       let orders = await orderModel
         .find(orderFilter)
-        .populate("clienteId", "firstname lastname")
-        .populate("freelancerId", "firstname lastname")
-        .populate("serviceId", "title description deliveryTime")
+        .populate("clienteId", "firstname lastname image")
+        .populate("freelancerId", "firstname lastname image")
+        .populate("serviceId", "title description deliveryTime images")
         .skip(skip)
         .limit(limit)
         .lean()
