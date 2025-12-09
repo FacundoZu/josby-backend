@@ -34,4 +34,23 @@ export class UserController {
         }
     };
 
+    static setAsFreelancer = async (req, res) => {
+        try {
+            const { id } = req.params;
+            const user = await User.findById(id);
+
+            if (!user) {
+                const error = new Error('Usuario no encontrado');
+                return res.status(404).json({ error: error.message });
+            }
+
+            user.role = "freelancer";
+            await user.save();
+
+            res.status(200).json({ message: "Rol actualizado a freelancer correctamente", user });
+        } catch (error) {
+            console.error("Error al actualizar rol:", error);
+            res.status(500).json({ message: "Error interno del servidor" });
+        }
+    }
 }
