@@ -69,6 +69,7 @@ export class AuthController {
                     lastname: userFound.lastname,
                     role: userFound.role,
                     image: userFound.image,
+                    birthdate: userFound.birthdate,
                 }
             })
         } catch (error) {
