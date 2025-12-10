@@ -2,6 +2,7 @@ import express from "express";
 import { body } from "express-validator";
 import { UserController } from "../controllers/userController.js";
 import { handleInputErrors } from "../middleware/validation.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -13,6 +14,10 @@ router.post("/register", [
     body("birthdate").notEmpty().withMessage("La fecha de nacimiento es obligatoria"),
 ], handleInputErrors, UserController.registerUser);
 
-router.put("/set-as-freelancer/:id", UserController.setAsFreelancer);
+router.get("/profile", authenticateToken, UserController.getProfile);
+
+router.put("/profile", authenticateToken, UserController.updateProfile);
+
+router.get("/profile/services", authenticateToken, UserController.getUserServices);
 
 export default router;
