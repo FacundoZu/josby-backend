@@ -54,7 +54,7 @@ export class ConversationController {
     try {
       const { id } = req.params
 
-      const conversation = await Conversation.findById(id).populate("clientId", "firstname lastname")
+      const conversation = await Conversation.findById(id).populate("clientId", "firstname lastname image")
 
       if (!conversation) {
         res.status(404).json({ message: "No se encontró la conversación" })

@@ -45,7 +45,7 @@ export class ServiceController {
             const totalPages = Math.ceil(totalServices / limitNum)
 
             const services = await Service.find(queryFilter)
-                .populate("usuarioId", "firstname lastname location")
+                .populate("usuarioId", "firstname lastname location image")
                 .populate("categories", "name")
                 .skip(skip)
                 .limit(limitNum)
@@ -79,7 +79,7 @@ export class ServiceController {
             }
 
             const service = await Service.findById(id)
-                .populate("usuarioId", "id firstname lastname location description title")
+                .populate("usuarioId", "id firstname lastname location description title image")
                 .populate("categories", "name")
                 .lean()
 

@@ -60,6 +60,7 @@ export class UserController {
             let services = [];
             if (user.role === "freelancer") {
                 services = await Service.find({ usuarioId: userId })
+                    .populate("usuarioId", "firstname lastname location image")
                     .populate("categories", "name logo")
                     .lean();
             }
